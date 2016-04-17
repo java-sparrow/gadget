@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+		Remove this if you use the .htaccess -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+		<title>浏览器中可以展现哪些效果</title>
+		<meta name="description" content="">
+		<meta name="author" content="x_l_s">
+
+		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+
+		<!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
+		<link rel="shortcut icon" href="/favicon.ico">
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+		
+		<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			.nowrap {
+				white-space: nowrap;
+			}
+			.text-center {
+				text-align: center;
+			}
+			nav,
+			.preview-container {
+				float: left;
+			}
+			nav {
+				width: 10%;
+				margin-left: 3%;
+				margin-right: 2%;
+			}
+			nav p {
+				border-bottom: 1px dashed #ccc;
+				padding-bottom: 10px;
+			}
+			.preview-container {
+				width: 80%;
+			}
+			.preview-iframe {
+				width: 100%;
+				min-height: 600px;
+				border: 3px solid #09f;
+			}
+			footer {
+				clear: both;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div>
+			<header>
+				<h1>浏览器中可以展现哪些效果（以百度搜索特效彩蛋为例）</h1>
+			</header>
+			<nav>
+				<div>
+					以下是动画效果
+				</div>
+				<div id="animationButtonContainer">
+					请稍后，正在加载
+					<!-- 由js填充 -->
+				</div>
+				
+				<div>
+					以下是声音效果
+				</div>
+				<div id="soundEffectButtonContainer"></div>
+				<!-- 2012世界末日、变形金刚、放鞭炮等已失效 -->
+			</nav>
+
+			<div class="preview-container">
+				<div class="nowrap">
+					&#x2190;&#x2190; 请点击左侧的按钮，可以在下面的iframe中显示预览的效果.
+					&nbsp; &#x2193;&#x2193;效果的url为：<span id="previewUrl">-</span>
+				</div>
+				<iframe src="" frameborder="0" name="previewFrame" class="preview-iframe">
+					<!-- 预览结果 -->
+				</iframe>
+			</div>
+
+			<footer>
+				<p class="text-center">
+					&copy; Copyright  by x_l_s
+				</p>
+			</footer>
+		</div>
+		
+		<script type="text/javascript" charset="utf-8">
+			$(function () {
+				// 动画效果
+				var animationNames = [
+					["黑洞", "人造黑洞"],
+					["旋转", "水平旋转"],
+					["翻转", "反转"],
+					["抖动", "晃动", "摇一摇", "Duang"],
+					["跳跃", "跳动"],
+					"淡入",
+					"闪烁"
+				];
+				// 声音效果
+				var soundEffectNames = [
+					"海边",
+					"打雷",
+					"大风",
+					"布谷鸟"
+				];
+				
+				var $_animationButtonContainer = $("#animationButtonContainer");
+				var $_soundEffectButtonContainer = $("#soundEffectButtonContainer");
+				var $_previewUrl = $("#previewUrl");
+				var $_iframe = $(".preview-container").children("iframe");
+				var iframeName = $_iframe.attr("name");
+				var searchUrlPrefix = "https://www.baidu.com/s?wd=";
+				
+				var createLinkByDataList = function (dataList) {
+					return $.map(dataList, function (name, i) {
+						if ($.isArray(name)) {
+							// 如果直接返回数组，则会被$.map处理成多个数据 而非数组形式。所以这里采用对象绕过$.map的处理
+							return {
+								_list: createLinkByDataList(name)
+							};
+						}
+						
+						var $_link = $("<a>");
+						var previewUrl = searchUrlPrefix + encodeURIComponent(name);
+						
+						$_link.attr("href", previewUrl)
+							.attr("target", iframeName)
+							.html(name)
+							.click(function () {
+								$_previewUrl.html(previewUrl);
+							});
+						
+						return $_link;
+					});
+				};
+				var appendLinkToContainer = function (dataList, container) {
+					var $_container = $(container);
+					
+					$.each(createLinkByDataList(dataList), function (i, item) {
+						var $_link = $(item._list || item);
+						var $_item = $("<p>");
+						
+						$_link.each(function (i, link) {
+							$(link).appendTo($_item);
+							
+							$_item.append("  ")
+								.appendTo($_container);;
+						});
+					});
+				};
+				
+				$_animationButtonContainer.empty();
+				appendLinkToContainer(animationNames, $_animationButtonContainer);
+				appendLinkToContainer(soundEffectNames, $_soundEffectButtonContainer);
+			});
+		</script>
+	</body>
+</html>
